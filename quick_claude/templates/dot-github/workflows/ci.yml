@@ -39,6 +39,7 @@ jobs:
 
       - name: Run tests
         run: |
-          uv run pytest; rc=$?
+          rc=0
+          uv run pytest || rc=$?
           if [ $rc -eq 5 ]; then echo "No tests found, skipping"; exit 0; fi
           exit $rc
