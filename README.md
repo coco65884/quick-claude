@@ -39,6 +39,21 @@ quick-claude -f       # 既存ファイルがあっても上書き
 quick-claude --no-ci  # CI workflow + pyproject.toml を追加しない（Python以外のプロジェクト向け）
 ```
 
+## Auto-merge の設定（推奨）
+
+CI が通ったら PR を自動マージさせるには、リポジトリ側で以下の設定を行う:
+
+1. **Settings → General → Pull Requests** で "Allow auto-merge" を有効化
+2. **Settings → Branches → Add branch protection rule** で `main` に対して:
+   - "Require status checks to pass before merging" を有効化
+   - Required checks に `lint` と `test` を追加
+
+設定後、PR ごとに auto-merge を有効化する:
+
+```bash
+gh pr merge <PR番号> --auto --squash
+```
+
 ## 動作要件
 
 - Python 3.9+
