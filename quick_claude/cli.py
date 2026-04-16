@@ -52,6 +52,11 @@ def main() -> None:
         action="store_true",
         help="既存ファイルを上書きする",
     )
+    parser.add_argument(
+        "--no-ci",
+        action="store_true",
+        help="GitHub Actions CI workflow を追加しない",
+    )
     args = parser.parse_args()
 
     cwd = Path.cwd()
@@ -72,6 +77,15 @@ def main() -> None:
         print("  added: .claude/")
     else:
         print("  skip:  .claude/   (already exists, use -f to overwrite)")
+
+    # --- .github/workflows/ (パッケージ内では dot-github/ として格納) ---
+    if not args.no_ci:
+        src_gh = TEMPLATES_DIR / "dot-github"
+        dst_gh = cwd / ".github"
+        if copy_dir(src_gh, dst_gh, force=args.force):
+            print("  added: .github/workflows/ci.yml")
+        else:
+            print("  skip:  .github/  (already exists, use -f to overwrite)")
 
     print()
     print("Done! Run 'claude' to start.")

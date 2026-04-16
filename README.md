@@ -1,14 +1,15 @@
 # quick-claude
 
-プロジェクトに Claude Code 用のテンプレート（`CLAUDE.md` + `.claude/`）を追加する CLI ツール。
+プロジェクトに Claude Code 用のテンプレート（`CLAUDE.md` + `.claude/` + CI workflow）を追加する CLI ツール。
 
 ## テンプレートの内容
 
 | ファイル | 説明 |
 |---|---|
-| `CLAUDE.md` | 開発ルール・Git運用・品質チェックの指示書 |
+| `CLAUDE.md` | 開発ルール・Git運用・初期セットアップ・品質チェックの指示書 |
 | `.claude/settings.json` | セキュリティ deny ルール・hooks 設定・環境変数 |
 | `.claude/hooks/deny-check.py` | 危険なコマンドを動的にブロックする PreToolUse hook |
+| `.github/workflows/ci.yml` | GitHub Actions CI（ruff + pytest / Python向け） |
 
 ## インストール
 
@@ -33,8 +34,9 @@ uv tool install .
 ```bash
 # 任意のプロジェクトディレクトリで実行
 cd ~/my-project
-quick-claude          # CLAUDE.md と .claude/ を追加
+quick-claude          # CLAUDE.md + .claude/ + .github/workflows/ を追加
 quick-claude -f       # 既存ファイルがあっても上書き
+quick-claude --no-ci  # CI workflow を追加しない
 ```
 
 ## 動作要件
