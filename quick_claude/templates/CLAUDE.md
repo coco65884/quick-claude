@@ -38,6 +38,16 @@ git push -u origin feature/<TASK-ID>-<description>
 gh pr create --title "..." --body "Closes #<NUMBER>" --base main
 ```
 
+## 初期セットアップ
+
+プロジェクト開始時に以下を確認すること。
+
+- `.github/workflows/ci.yml` が存在しない場合、プロジェクトに適した CI workflow を作成する
+- 既存の CI workflow がプロジェクトの言語・ツールチェーンと合っていない場合は修正する
+  - Python: ruff + pytest（デフォルトテンプレート）
+  - Node.js: eslint + prettier + vitest 等に差し替え
+- `pyproject.toml` (または `package.json`) がまだなければ、プロジェクト構成に応じて作成する
+
 ## 品質チェック
 
 プロジェクトに応じたリンター・フォーマッター・型チェックを実行してからコミットすること。
