@@ -34,9 +34,9 @@ uv tool install .
 ```bash
 # 任意のプロジェクトディレクトリで実行
 cd ~/my-project
-quick-claude          # CLAUDE.md + .claude/ + .github/workflows/ を追加
+quick-claude          # CLAUDE.md + .claude/ + pyproject.toml + .github/workflows/ を追加
 quick-claude -f       # 既存ファイルがあっても上書き
-quick-claude --no-ci  # CI workflow を追加しない
+quick-claude --no-ci  # CI workflow + pyproject.toml を追加しない（Python以外のプロジェクト向け）
 ```
 
 ## 動作要件
