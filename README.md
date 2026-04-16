@@ -34,25 +34,25 @@ uv tool install .
 ```bash
 # 任意のプロジェクトディレクトリで実行
 cd ~/my-project
-quick-claude          # CLAUDE.md + .claude/ + pyproject.toml + .github/workflows/ を追加
-quick-claude -f       # 既存ファイルがあっても上書き
-quick-claude --no-ci  # CI workflow + pyproject.toml を追加しない（Python以外のプロジェクト向け）
+quick-claude               # CLAUDE.md + .claude/ + pyproject.toml + .github/workflows/ を追加
+quick-claude --auto-merge  # 上記 + auto-merge と branch protection rule を設定
+quick-claude -f            # 既存ファイルがあっても上書き
+quick-claude --no-ci       # CI workflow + pyproject.toml を追加しない（Python以外のプロジェクト向け）
 ```
 
-## Auto-merge の設定（推奨）
+## Auto-merge の設定
 
-CI が通ったら PR を自動マージさせるには、リポジトリ側で以下の設定を行う:
+`--auto-merge` フラグを付けると、以下を自動で設定する:
 
-1. **Settings → General → Pull Requests** で "Allow auto-merge" を有効化
-2. **Settings → Branches → Add branch protection rule** で `main` に対して:
-   - "Require status checks to pass before merging" を有効化
-   - Required checks に `lint` と `test` を追加
-
-設定後、PR ごとに auto-merge を有効化する:
+- リポジトリの auto-merge を有効化
+- `main` ブランチに branch protection rule を追加（`lint` と `test` を必須チェックに）
+- `CLAUDE.md` の作業フローに `gh pr merge --auto --squash` を追記
 
 ```bash
-gh pr merge <PR番号> --auto --squash
+quick-claude --auto-merge
 ```
+
+手動で設定する場合は、リポジトリの Settings から "Allow auto-merge" の有効化と branch protection rule の追加を行う。
 
 ## 動作要件
 
