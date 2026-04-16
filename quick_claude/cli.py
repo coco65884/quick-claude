@@ -141,6 +141,14 @@ def main() -> None:
 
     cwd = Path.cwd()
 
+    # --- .gitignore (パッケージ内では gitignore として格納) ---
+    src_gi = TEMPLATES_DIR / "gitignore"
+    dst_gi = cwd / ".gitignore"
+    if copy_file(src_gi, dst_gi, force=args.force):
+        print("  added: .gitignore")
+    else:
+        print("  skip:  .gitignore (already exists, use -f to overwrite)")
+
     # --- CLAUDE.md ---
     src_md = TEMPLATES_DIR / "CLAUDE.md"
     dst_md = cwd / "CLAUDE.md"

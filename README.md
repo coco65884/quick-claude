@@ -6,6 +6,7 @@
 
 | ファイル | 説明 |
 |---|---|
+| `.gitignore` | Python, Claude Code, macOS, IDE 向けの除外設定 |
 | `CLAUDE.md` | 開発ルール・Git運用・初期セットアップ・品質チェックの指示書 |
 | `.claude/settings.json` | セキュリティ deny ルール・hooks 設定・環境変数 |
 | `.claude/hooks/deny-check.py` | 危険なコマンドを動的にブロックする PreToolUse hook |
@@ -34,7 +35,7 @@ uv tool install .
 ```bash
 # 任意のプロジェクトディレクトリで実行
 cd ~/my-project
-quick-claude               # CLAUDE.md + .claude/ + pyproject.toml + .github/workflows/ を追加
+quick-claude               # .gitignore + CLAUDE.md + .claude/ + pyproject.toml + .github/workflows/ を追加
 quick-claude --auto-merge  # 上記 + auto-merge と branch protection rule を設定
 quick-claude -f            # 既存ファイルがあっても上書き
 quick-claude --no-ci       # CI workflow + pyproject.toml を追加しない（Python以外のプロジェクト向け）
