@@ -78,8 +78,15 @@ def main() -> None:
     else:
         print("  skip:  .claude/   (already exists, use -f to overwrite)")
 
-    # --- .github/workflows/ (パッケージ内では dot-github/ として格納) ---
+    # --- pyproject.toml + .github/workflows/ (Python CI セット) ---
     if not args.no_ci:
+        src_pyproject = TEMPLATES_DIR / "pyproject.toml"
+        dst_pyproject = cwd / "pyproject.toml"
+        if copy_file(src_pyproject, dst_pyproject, force=args.force):
+            print("  added: pyproject.toml")
+        else:
+            print("  skip:  pyproject.toml (already exists, use -f to overwrite)")
+
         src_gh = TEMPLATES_DIR / "dot-github"
         dst_gh = cwd / ".github"
         if copy_dir(src_gh, dst_gh, force=args.force):
