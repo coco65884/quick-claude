@@ -69,6 +69,14 @@ def main() -> None:
     else:
         print("  skip:  CLAUDE.md  (already exists, use -f to overwrite)")
 
+    # --- pyproject.toml ---
+    src_pyproject = TEMPLATES_DIR / "pyproject.toml"
+    dst_pyproject = cwd / "pyproject.toml"
+    if copy_file(src_pyproject, dst_pyproject, force=args.force):
+        print("  added: pyproject.toml")
+    else:
+        print("  skip:  pyproject.toml (already exists, use -f to overwrite)")
+
     # --- .claude/ (パッケージ内では dot-claude/ として格納) ---
     src_dir = TEMPLATES_DIR / "dot-claude"
     dst_dir = cwd / ".claude"
