@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "quick-claude"
+version = "0.1.0"
+description = "Add Claude Code templates to your project"
+requires-python = ">=3.9"
+
+[project.scripts]
+quick-claude = "quick_claude.cli:main"
+
+[tool.setuptools.packages.find]
+include = ["quick_claude*"]
+
+[tool.setuptools.package-data]
+quick_claude = [
+    "templates/*",
+    "templates/**/*",
+]
