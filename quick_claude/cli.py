@@ -2,9 +2,10 @@
 """quick-claude: Claude Code テンプレートをカレントディレクトリに追加する CLI"""
 
 import argparse
+import json
 import shutil
 import stat
-import sys
+import subprocess
 from pathlib import Path
 
 TEMPLATES_DIR = Path(__file__).parent / "templates"
@@ -41,6 +42,80 @@ def ensure_hooks_executable(claude_dir: Path) -> None:
             hook.chmod(hook.stat().st_mode | stat.S_IXUSR | stat.S_IXGRP | stat.S_IXOTH)
 
 
+def get_repo_fullname() -> str | None:
+    """gh CLI から owner/repo を取得する。"""
+    try:
+        result = subprocess.run(
+            ["gh", "repo", "view", "--json", "nameWithOwner", "-q", ".nameWithOwner"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+        return result.stdout.strip()
+    except (FileNotFoundError, subprocess.CalledProcessError):
+        return None
+
+
+def setup_auto_merge(repo: str) -> bool:
+    """GitHub リポジトリの auto-merge と branch protection を設定する。"""
+    # auto-merge を有効化
+    try:
+        subprocess.run(
+            ["gh", "api", f"repos/{repo}", "-X", "PATCH", "-f", "allow_auto_merge=true"],
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"  error: auto-merge の有効化に失敗しました: {e.stderr.strip()}")
+        return False
+
+    # branch protection rule を設定
+    protection = {
+        "required_status_checks": {
+            "strict": True,
+            "checks": [
+                {"context": "lint"},
+                {"context": "test"},
+            ],
+        },
+        "enforce_admins": False,
+        "required_pull_request_reviews": None,
+        "restrictions": None,
+    }
+    try:
+        subprocess.run(
+            ["gh", "api", f"repos/{repo}/branches/main/protection", "-X", "PUT", "--input", "-"],
+            input=json.dumps(protection),
+            capture_output=True,
+            text=True,
+            check=True,
+        )
+    except subprocess.CalledProcessError as e:
+        print(f"  error: branch protection の設定に失敗しました: {e.stderr.strip()}")
+        return False
+
+    return True
+
+
+def patch_claude_md_for_auto_merge(claude_md: Path) -> None:
+    """CLAUDE.md の作業フローに auto-merge ステップを追加する。"""
+    content = claude_md.read_text()
+    old = (
+        '# 4. push → PR → merge\n'
+        'git push -u origin feature/<TASK-ID>-<description>\n'
+        'gh pr create --title "..." --body "Closes #<NUMBER>" --base main'
+    )
+    new = (
+        '# 4. push → PR → auto-merge\n'
+        'git push -u origin feature/<TASK-ID>-<description>\n'
+        'gh pr create --title "..." --body "Closes #<NUMBER>" --base main\n'
+        'gh pr merge --auto --squash'
+    )
+    if old in content:
+        claude_md.write_text(content.replace(old, new))
+
+
 def main() -> None:
     parser = argparse.ArgumentParser(
         prog="quick-claude",
@@ -56,6 +131,11 @@ def main() -> None:
         "--no-ci",
         action="store_true",
         help="GitHub Actions CI workflow を追加しない",
+    )
+    parser.add_argument(
+        "--auto-merge",
+        action="store_true",
+        help="auto-merge と branch protection rule を設定する",
     )
     args = parser.parse_args()
 
@@ -93,6 +173,18 @@ def main() -> None:
             print("  added: .github/workflows/ci.yml")
         else:
             print("  skip:  .github/  (already exists, use -f to overwrite)")
+
+    # --- auto-merge 設定 ---
+    if args.auto_merge:
+        repo = get_repo_fullname()
+        if repo is None:
+            print("  error: gh CLI が見つからないか、GitHub リポジトリが設定されていません")
+            print("         リポジトリ作成後に quick-claude --auto-merge を再実行してください")
+        else:
+            if setup_auto_merge(repo):
+                print(f"  added: auto-merge + branch protection ({repo})")
+                patch_claude_md_for_auto_merge(dst_md)
+                print("  added: CLAUDE.md に auto-merge ステップを追記")
 
     print()
     print("Done! Run 'claude' to start.")
